@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maddy Grupper | Life</title>
+
+    <!-- Leaflet CSS for map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.7;
+            color: #1a1a1a;
+            background: #fafafa;
+        }
+
+        h1, h2, h3, nav {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 1rem 3rem 0.5rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(45, 95, 63, 0.1);
+        }
+
+        nav .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav h1 {
+            font-size: 3rem;
+            color: #2d5f3f;
+            font-weight: 600;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 1001;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        nav a {
+            color: #2d5f3f;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+            letter-spacing: 0.3px;
+        }
+
+        nav a:hover {
+            color: #5a9f6f;
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 60px;
+            background: linear-gradient(135deg, #2d5f3f 0%, #234a33 100%);
+            color: white;
+            padding: 5rem 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h2 {
+            font-size: 3.5rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+
+        /* Intro Section */
+        .intro-section {
+            max-width: 1100px;
+            margin: -2rem auto 2rem;
+            padding: 0 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .intro-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+
+        .intro-content p {
+            font-size: 1.15rem;
+            line-height: 1.9;
+            color: #2d2d2d;
+            margin-bottom: 1.2rem;
+        }
+
+        .intro-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Photo Gallery Section */
+        .gallery-section {
+            padding: 3rem 3rem 5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #2d5f3f;
+            font-weight: 300;
+        }
+
+        /* Carousel Container */
+        .carousel-container {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: 1fr 180px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        /* Main Featured Image */
+        .featured-image-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: #f0f5f2;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .featured-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: linear-gradient(135deg, #c8e6d3 0%, #e8f1eb 100%);
+        }
+
+        /* Fullscreen Button */
+        .fullscreen-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(45, 95, 63, 0.9);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .fullscreen-btn:hover {
+            background: rgba(45, 95, 63, 1);
+            transform: scale(1.05);
+        }
+
+        /* Navigation Arrows */
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(45, 95, 63, 0.8);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .carousel-nav:hover {
+            background: rgba(45, 95, 63, 1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-nav.prev {
+            left: 1rem;
+        }
+
+        .carousel-nav.next {
+            right: 1rem;
+        }
+
+        /* Counter */
+        .photo-counter {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(45, 95, 63, 0.9);
+            color: white;
+            padding: 0.6rem 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        /* Thumbnail Strip */
+        .thumbnail-strip {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+            max-height: 500px;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        .thumbnail-strip::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .thumbnail-strip::-webkit-scrollbar-track {
+            background: #f0f5f2;
+            border-radius: 4px;
+        }
+
+        .thumbnail-strip::-webkit-scrollbar-thumb {
+            background: #8b7355;
+            border-radius: 4px;
+        }
+
+        .thumbnail-strip::-webkit-scrollbar-thumb:hover {
+            background: #6d5a44;
+        }
+
+        .thumbnail {
+            width: 100%;
+            height: 120px;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .thumbnail:hover img {
+            transform: scale(1.1);
+        }
+
+        .thumbnail.active {
+            border-color: #2d5f3f;
+            box-shadow: 0 4px 15px rgba(45, 95, 63, 0.3);
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 95vw;
+            max-height: 95vh;
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -3rem;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .lightbox-close:hover {
+            transform: scale(1.2);
+        }
+
+        /* Map and Philosophy Section */
+        .map-philosophy-section {
+            padding: 4rem 3rem;
+            background: linear-gradient(135deg, #f0f5f2 0%, #e8f1eb 100%);
+            position: relative;
+        }
+
+        .map-philosophy-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: white;
+            clip-path: polygon(0 0, 100% 0, 100% 50%, 0 100%);
+        }
+
+        .map-philosophy-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        /* Small Map */
+        .small-map-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 3px solid white;
+            position: sticky;
+            top: 100px;
+        }
+
+        .small-map-container h3 {
+            background: #2d5f3f;
+            color: white;
+            padding: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        #climbing-map {
+            width: 100%;
+            height: 300px;
+        }
+
+        /* Philosophy Text */
+        .philosophy-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .philosophy-content h2 {
+            font-size: 2.2rem;
+            color: #2d5f3f;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .philosophy-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #4a4a4a;
+            margin-bottom: 1.5rem;
+        }
+
+        .philosophy-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Footer */
+        footer {
+            background: #1a1a1a;
+            color: #999;
+            text-align: center;
+            padding: 2.5rem;
+            font-size: 0.9rem;
+        }
+
+        footer .contact-info {
+            margin-bottom: 1rem;
+        }
+
+        footer a {
+            color: #5a9f6f;
+            text-decoration: none;
+            margin: 0 0.5rem;
+            transition: color 0.3s;
+        }
+
+        footer a:hover {
+            color: #a8d5ba;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .map-philosophy-content {
+                grid-template-columns: 1fr;
+            }
+
+            .small-map-container {
+                position: relative;
+                top: 0;
+            }
+        }
+
+        @media (max-width: 968px) {
+            nav .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav ul {
+                gap: 1.5rem;
+            }
+
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+
+            .carousel-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .featured-image-container {
+                height: 400px;
+            }
+
+            .thumbnail-strip {
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                max-height: none;
+            }
+
+            .thumbnail-strip::-webkit-scrollbar {
+                height: 8px;
+                width: auto;
+            }
+
+            .thumbnail {
+                width: 120px;
+                min-width: 120px;
+                height: 90px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 3rem 2rem;
+            }
+
+            .hero h2 {
+                font-size: 2rem;
+            }
+
+            .intro-content {
+                padding: 2rem;
+            }
+
+            .carousel-container {
+                padding: 1rem;
+            }
+
+            .featured-image-container {
+                height: 300px;
+            }
+
+            .philosophy-content {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1>Maddy Grupper</h1>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="research.html">Research</a></li>
+                <li><a href="outreach.html">Outreach</a></li>
+                <li><a href="life.html">Life</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-content">
+            <h2>Life Beyond the Lab</h2>
+        </div>
+    </div>
+
+    <section class="intro-section">
+        <div class="intro-content">
+            <p>I am a huge proponent of humanizing STEM workers - showing that we are people beyond what we do for our jobs. Allowing ourselves to be portrayed as three dimensional with diverse interests is critical to destigmatizing the ivory tower mentality that can prevent others from feeling like they can understand or relate to our work. To that end, I want to highlight something I love that goes beyond the lab or computer - rock climbing.</p>
+
+            <p>Climbing has been a constant in my life since childhood. It has shaped who I am. Climbing has allowed me to push myself mentally and physically, taught me how to pursue my goals while supporting and uplifting others, showed me how to build community, and inspired me to travel the world. Ascending a climb is not unlike scientific research. You need to look at the rock for patterns, ask questions, and distinguish between the time to try harder and the time to think creatively and try a different method to get to the top. Forget talking about collaborations over coffee - how about a climb instead?</p>
+        </div>
+    </section>
+
+    <section class="gallery-section">
+        <h2 class="section-title">Climbing Gallery</h2>
+
+        <div class="carousel-container">
+            <!-- Featured Image Display -->
+            <div class="featured-image-container">
+                <span class="photo-counter"><span id="current-photo">1</span> / <span id="total-photos">0</span></span>
+                <button class="fullscreen-btn" onclick="openLightbox()">View Fullscreen</button>
+                <button class="carousel-nav prev" onclick="changePhoto(-1)">‹</button>
+                <button class="carousel-nav next" onclick="changePhoto(1)">›</button>
+
+                <img id="featured-image" class="featured-image" src="" alt="Climbing photo" onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #c8e6d3 0%, #e8f1eb 100%)';">
+
+            </div>
+
+            <!-- Thumbnail Strip -->
+            <div class="thumbnail-strip" id="thumbnail-strip">
+                <!-- Thumbnails will be generated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <section class="map-philosophy-section">
+        <div class="map-philosophy-content">
+            <!-- Small Map -->
+            <div class="small-map-container">
+                <h3>Places I've Climbed</h3>
+                <div id="climbing-map"></div>
+            </div>
+
+            <!-- Accomplishments Text -->
+            <div class="philosophy-content">
+                <h2>Accomplishments</h2>
+
+                <p><strong>Third Place, Open Female Victorian State Titles, 2023</strong><br>Australia</p>
+
+                <p><strong>Winner, American Alpine Club Live Your Dream Grant, 2019</strong></p>
+
+                <p><strong>Third Place, Collegiate Climbing National Championship, 2012</strong></p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="contact-info">
+            <a href="https://www.linkedin.com/in/madeline-grupper/" target="_blank">LinkedIn</a> |
+            <a href="https://www.instagram.com/maddventure/" target="_blank">Instagram</a>
+        </div>
+        <p>&copy; 2025 Maddy Grupper. All rights reserved.</p>
+    </footer>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <button class="lightbox-close" onclick="closeLightbox()">×</button>
+            <img id="lightbox-image" class="lightbox-image" src="" alt="">
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // ==========================================
+        // PHOTO GALLERY DATA
+        // ==========================================
+        // Auto-generated array for all climbing photos
+        // Add location and story details by editing specific entries
+
+        const climbingPhotos = [];
+
+        // Generate entries for Life_climb1 through Life_climb100
+        // Missing photo numbers will show placeholder or be skipped via onerror handler
+        for (let i = 1; i <= 100; i++) {
+            climbingPhotos.push({
+                src: `photos/Life_climb${i}.jpg`,
+                location: `Climbing Location ${i}`,
+                story: ''
+            });
+        }
+
+        // ==========================================
+        // CLIMBING LOCATIONS FOR MAP
+        // ==========================================
+        // Real climbing locations from Maddy's adventures
+
+        const climbingLocations = [
+            // USA - Northeast
+            { name: 'Shawangunk Mountains, NY', coords: [41.7451, -74.1765] },
+            { name: 'New Jersey Rock Gym', coords: [40.9168, -74.1725] },
+
+            // USA - Southeast
+            { name: 'New River Gorge, WV', coords: [38.0681, -81.0720] },
+            { name: 'Red River Gorge, KY', coords: [37.8201, -83.6840] },
+            { name: 'Little Rock City, GA', coords: [34.9451, -85.3507] },
+            { name: 'Stone Fort, TN', coords: [35.0456, -85.3097] },
+            { name: 'Atlanta, GA', coords: [33.7490, -84.3880] },
+
+            // USA - Mountain West
+            { name: 'Rocky Mountain NP, CO', coords: [40.3428, -105.6836] },
+            { name: 'Fort Collins, CO', coords: [40.5853, -105.0844] },
+            { name: 'Lincoln Lake, CO', coords: [39.2362, -106.3194] },
+            { name: "Devil's Tower, WY", coords: [44.5902, -104.7147] },
+            { name: 'Laramie, WY', coords: [41.3114, -105.5911] },
+            { name: 'Lander, WY', coords: [42.8330, -108.7307] },
+            { name: "Devil's Lake, WI", coords: [43.4211, -89.7284] },
+
+            // USA - West Coast
+            { name: 'Yosemite, CA', coords: [37.8651, -119.5383] },
+            { name: 'Pinnacles, CA', coords: [36.4906, -121.1825] },
+            { name: 'Needles, CA', coords: [36.4831, -118.6292] },
+            { name: 'Castle Rock, CA', coords: [37.2272, -122.0965] },
+            { name: 'Castle Crag, CA', coords: [41.1556, -122.3136] },
+            { name: 'Mt Shasta, CA', coords: [41.4093, -122.1949] },
+            { name: 'Trout Creek, CA', coords: [39.5869, -119.9874] },
+            { name: 'Joshua Tree, CA', coords: [33.8734, -115.9010] },
+            { name: 'Red Rocks, NV', coords: [36.1357, -115.4273] },
+
+            // Canada
+            { name: 'Squamish, BC', coords: [49.7016, -123.1558] },
+
+            // Mexico
+            { name: 'Potrero Chico', coords: [25.8386, -100.1817] },
+            { name: 'El Salto', coords: [23.7695, -105.3680] },
+
+            // Europe
+            { name: 'Magic Wood, Switzerland', coords: [46.3353, 9.2734] },
+            { name: 'Fontainebleau, France', coords: [48.4042, 2.7002] },
+            { name: 'Calanques, France', coords: [43.2105, 5.4470] },
+            { name: 'Innsbruck, Austria', coords: [47.2692, 11.4041] },
+
+            // Africa
+            { name: 'Cape Town, South Africa', coords: [-33.9249, 18.4241] },
+
+            // Australia
+            { name: 'The Grampians', coords: [-37.1937, 142.5070] },
+            { name: 'Arapiles', coords: [-36.7532, 141.8357] },
+            { name: 'Blue Mountains', coords: [-33.7205, 150.3119] },
+            { name: 'Tasmania', coords: [-41.6690, 146.8173] },
+
+            // Asia
+            { name: 'Mizugaki, Japan', coords: [35.9376, 138.3824] },
+            { name: 'Cat Ba Island, Vietnam', coords: [20.7273, 107.0471] },
+            { name: 'Butterfly Island, Vietnam', coords: [20.7400, 107.0550] },
+            { name: 'Jungle Boulders, Thailand', coords: [7.9519, 98.9073] },
+            { name: 'Tonsai, Thailand', coords: [8.0078, 98.8350] },
+            { name: 'Kathmandu, Nepal', coords: [27.7172, 85.3240] },
+        ];
+
+        // ==========================================
+        // CAROUSEL FUNCTIONALITY
+        // ==========================================
+
+        let currentPhotoIndex = 0;
+        let validPhotos = [];
+
+        async function checkImageExists(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = url;
+            });
+        }
+
+        async function initGallery() {
+            if (climbingPhotos.length === 0) {
+                document.querySelector('.gallery-section').style.display = 'none';
+                return;
+            }
+
+            // Filter out missing images
+            for (let photo of climbingPhotos) {
+                const exists = await checkImageExists(photo.src);
+                if (exists) {
+                    validPhotos.push(photo);
+                }
+            }
+
+            if (validPhotos.length === 0) {
+                document.querySelector('.gallery-section').style.display = 'none';
+                return;
+            }
+
+            // Update total count with valid photos only
+            document.getElementById('total-photos').textContent = validPhotos.length;
+
+            // Generate thumbnails for valid photos only
+            const thumbnailStrip = document.getElementById('thumbnail-strip');
+            validPhotos.forEach((photo, index) => {
+                const thumbnail = document.createElement('div');
+                thumbnail.className = 'thumbnail';
+                if (index === 0) thumbnail.classList.add('active');
+
+                const img = document.createElement('img');
+                img.src = photo.src;
+                img.alt = photo.location;
+
+                thumbnail.appendChild(img);
+                thumbnail.onclick = () => showPhoto(index);
+                thumbnailStrip.appendChild(thumbnail);
+            });
+
+            // Show first photo
+            showPhoto(0);
+        }
+
+        function showPhoto(index) {
+            if (validPhotos.length === 0) return;
+            if (index < 0) index = validPhotos.length - 1;
+            if (index >= validPhotos.length) index = 0;
+
+            currentPhotoIndex = index;
+            const photo = validPhotos[index];
+
+            // Update featured image
+            const featuredImg = document.getElementById('featured-image');
+            featuredImg.style.display = 'block'; // Reset display in case it was hidden
+            featuredImg.src = photo.src;
+            document.getElementById('current-photo').textContent = index + 1;
+
+            // Update active thumbnail
+            document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === index);
+            });
+
+            // Scroll thumbnail into view
+            const activeThumbnail = document.querySelectorAll('.thumbnail')[index];
+            if (activeThumbnail) {
+                activeThumbnail.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+        }
+
+        function changePhoto(direction) {
+            showPhoto(currentPhotoIndex + direction);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changePhoto(-1);
+            if (e.key === 'ArrowRight') changePhoto(1);
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        // ==========================================
+        // LIGHTBOX FUNCTIONALITY
+        // ==========================================
+
+        function openLightbox() {
+            const photo = validPhotos[currentPhotoIndex];
+            document.getElementById('lightbox-image').src = photo.src;
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ==========================================
+        // CLIMBING MAP
+        // ==========================================
+
+        function initMap() {
+            if (climbingLocations.length === 0) {
+                document.querySelector('.map-philosophy-section').style.display = 'none';
+                return;
+            }
+
+            const map = L.map('climbing-map', {
+                center: [20, 0],
+                zoom: 2,
+                scrollWheelZoom: false,
+                minZoom: 1,
+                maxZoom: 8
+            });
+
+            // Add tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Custom icon
+            const climbIcon = L.icon({
+                iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUiIGhlaWdodD0iMzUiIHZpZXdCb3g9IjAgMCAyNSAzNSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIuNSAwQzkuNDYgMCA3IDIuNDYgNyA1LjVjMCA1LjggNS41IDEyIDUuNSAxMnM1LjUtNi4yIDUuNS0xMmMwLTMuMDQtMi40Ni01LjUtNS41LTUuNXoiIGZpbGw9IiM4YjczNTUiLz48Y2lyY2xlIGN4PSIxMi41IiBjeT0iNS41IiByPSIzIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==',
+                iconSize: [25, 35],
+                iconAnchor: [12.5, 17.5],
+                popupAnchor: [0, -17.5]
+            });
+
+            // Add markers
+            climbingLocations.forEach(location => {
+                L.marker(location.coords, { icon: climbIcon })
+                    .addTo(map)
+                    .bindPopup(`<strong>${location.name}</strong>`);
+            });
+
+            // Fit bounds if multiple locations
+            if (climbingLocations.length > 1) {
+                const group = new L.featureGroup(
+                    climbingLocations.map(loc => L.marker(loc.coords))
+                );
+                map.fitBounds(group.getBounds().pad(0.2));
+            }
+        }
+
+        // ==========================================
+        // INITIALIZE ON PAGE LOAD
+        // ==========================================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initGallery();
+            initMap();
+        });
+    </script>
+</body>
+</html>
